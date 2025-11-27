@@ -2,24 +2,34 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = "saifelislem/student-management:1.0"  // ton image Docker
-        DOCKER_CREDENTIALS = "docker-hub-token"            // ID du token stocké dans Jenkins Credentials
+        DOCKER_IMAGE = "saifelislem/student-management:1.0"
+        DOCKER_CREDENTIALS = "docker-hub-token"
     }
 
     stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main', url: 'https://github.com/saifelislem/devops.git'
+            }
+        }
+
+        stage('Build Spring Boot Jar') {
+            steps {
+                sh './mvnw clean package -DskipTests'
+            }
+        }
+
         stage('Build Docker Image') {
             steps {
-                // Construire l'image Docker à partir du Dockerfile
-                sh 'docker build -t $DOCKER_IMAGE .'
+                sh "docker build -t $DOCKER_IMAGE ."
             }
         }
 
         stage('Push Docker Image') {
             steps {
-                // Authentification Docker Hub et push
                 withCredentials([string(credentialsId: DOCKER_CREDENTIALS, variable: 'TOKEN')]) {
-                    sh 'echo $TOKEN | docker login -u saifelislem --password-stdin'
-                    sh 'docker push $DOCKER_IMAGE'
+                    sh "echo $TOKEN | docker login -u saifelislem --password-stdin"
+                    sh "docker push $DOCKER_IMAGE"
                 }
             }
         }

@@ -4,7 +4,7 @@ FROM eclipse-temurin:17-jdk
 WORKDIR /app
 
 # Copier le JAR généré
-COPY target/*.jar app.jar
+COPY target/** app.jar
 
 # Port exposé
 EXPOSE 8080
