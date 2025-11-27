@@ -15,7 +15,7 @@ pipeline {
 
         stage('Prepare') {
             steps {
-                sh 'chmod +x mvnw' // <-- cette ligne rend mvnw exécutable
+                sh 'chmod +x mvnw'
             }
         }
 
@@ -31,18 +31,13 @@ pipeline {
             }
         }
 
-       stage('Push Docker Image') {
-           steps {
-               withCredentials([usernamePassword(credentialsId: 'docker-hub-token',
-                                                usernameVariable: 'DOCKER_USER',
-                                                passwordVariable: 'DOCKER_PASS')]) {
-                   sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
-                   sh "docker push $DOCKER_IMAGE"
-               }
-           }
-       }
-
-
+        stage('Push Docker Image') {
+            steps {
+                withCredentials([string(credentialsId: "$DOCKER_CREDENTIALS", variable: 'TOKEN')]) {
+                    sh "echo $TOKEN | docker login -u saifelislem --password-stdin"
+                    sh "docker push $DOCKER_IMAGE"
+                }
+            }
         }
     }
 }
