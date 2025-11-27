@@ -33,11 +33,13 @@ pipeline {
 
         stage('Push Docker Image') {
             steps {
-                withCredentials([string(credentialsId: DOCKER_CREDENTIALS, variable: 'TOKEN')]) {
+                withCredentials([string(credentialsId: 'docker-hub-token', variable: 'TOKEN')]) {
                     sh "echo $TOKEN | docker login -u saifelislem --password-stdin"
                     sh "docker push $DOCKER_IMAGE"
                 }
             }
+        }
+
         }
     }
 }
