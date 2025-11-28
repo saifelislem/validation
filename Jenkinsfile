@@ -2,16 +2,16 @@ pipeline {
     agent any
 
     tools {
-        maven 'M2'
         jdk 'JAVA_HOME'
+        maven 'M2'
     }
 
     environment {
         DOCKER_IMAGE = "saifelislem/student-management:1.0"
-        // Si tu avais d'autres variables comme DOCKER_USER / DOCKER_PASS, on les gère via credentials, pas ici
     }
 
     stages {
+
         stage('Checkout') {
             steps {
                 echo 'Cloning repository...'
@@ -19,55 +19,48 @@ pipeline {
             }
         }
 
-        stage('Prepare') {
+        stage('Build Maven') {
             steps {
-                echo 'Making mvnw executable...'
-                sh 'chmod +x mvnw'
-            }
-        }
-
-        stage('Build JAR') {
-            steps {
-                echo 'Building Spring Boot project...'
-                sh './mvnw clean package -DskipTests'
+                echo 'Building Maven project...'
+                dir('student-management') {
+                    sh './mvnw clean package -DskipTests'
+                }
             }
         }
 
         stage('Build Docker Image') {
             steps {
                 echo 'Building Docker image...'
-                sh "docker build -t $DOCKER_IMAGE ."
-            }
-        }
-
-        stage('Docker Login') {
-            steps {
-                echo 'Logging into Docker Hub...'
-                withCredentials([usernamePassword(
-                    credentialsId: 'dockerhub',
-                    usernameVariable: 'DOCKER_USER',
-                    passwordVariable: 'DOCKER_PASS'
-                )]) {
-                    sh "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin"
+                dir('student-management') {
+                    sh "docker build -t $DOCKER_IMAGE ."
                 }
             }
         }
 
         stage('Push Docker Image') {
             steps {
-                echo 'Pushing Docker image...'
-                sh "docker push $DOCKER_IMAGE"
+                echo 'Logging into Docker and pushing image...'
+                dir('student-management') {
+                    withCredentials([usernamePassword(
+                        credentialsId: 'docker-hub-token-str',
+                        usernameVariable: 'DOCKER_USER',
+                        passwordVariable: 'DOCKER_PASS'
+                    )]) {
+                        sh "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin"
+                        sh "docker push $DOCKER_IMAGE"
+                    }
+                }
             }
         }
     }
 
     post {
         success {
-            echo '✅ Build et Docker push réussis !'
-            archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
+            echo 'Build et push Docker terminés avec succès !'
+            archiveArtifacts artifacts: 'student-management/target/*.jar', fingerprint: true
         }
         failure {
-            echo '❌ Pipeline échoué.'
+            echo 'pipeline échoué.'
         }
         always {
             echo 'Pipeline terminé.'
