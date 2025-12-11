@@ -7,7 +7,7 @@ WORKDIR /app
 COPY target/student-management-0.0.1-SNAPSHOT.jar app.jar
 
 # Port exposé
-EXPOSE 8080
+EXPOSE 8089
 
 # Commande pour démarrer l'application
 ENTRYPOINT ["java", "-jar", "app.jar"]
