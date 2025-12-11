@@ -16,8 +16,10 @@ spec:
       containers:
         - name: springboot
           image: ton-image-springboot:latest
+          imagePullPolicy: IfNotPresent
+
           ports:
-            - containerPort: 8080
+            - containerPort: 8089
           env:
             - name: SPRING_DATASOURCE_URL
               value: jdbc:mysql://mysql-service:3306/testdb
