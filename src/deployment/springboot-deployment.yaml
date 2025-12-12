@@ -16,7 +16,6 @@ spec:
       containers:
         - name: springboot
           image: saifelislem/student-management:latest
-          imagePullPolicy: IfNotPresent
 
           ports:
             - containerPort: 8089
