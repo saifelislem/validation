@@ -13,20 +13,19 @@ spec:
       labels:
         app: springboot
     spec:
-      containers:
-        - name: springboot
-          image: saifelislem/student-management:latest
-
-          ports:
-            - containerPort: 8089
-          env:
-            - name: SPRING_DATASOURCE_URL
-              value: jdbc:mysql://mysql-service:3306/testdb
-            - name: SPRING_DATASOURCE_USERNAME
-              value: root
-            - name: SPRING_DATASOURCE_PASSWORD
-              value: root
-
+     containers:
+      - name: springboot
+        image: saifelislem/student-management:latest
+        imagePullPolicy: IfNotPresent        # <<< AJOUT IMPORTANT
+        ports:
+          - containerPort: 8089
+        env:
+          - name: SPRING_DATASOURCE_URL
+            value: jdbc:mysql://mysql-service:3306/testdb
+          - name: SPRING_DATASOURCE_USERNAME
+            value: root
+          - name: SPRING_DATASOURCE_PASSWORD
+            value: root
 ---
 apiVersion: v1
 kind: Service
